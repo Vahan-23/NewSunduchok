@@ -32,8 +32,32 @@ public class CardDeck : MonoBehaviour
         public Suit suit; // Масть карты
         public Sprite face; // Изображение карты лицом вверх
         public Sprite back; // Задняя сторона карты
-        public GameObject gameObject; // Ссылка на игровой объект
+       // public GameObject gameObject; // Ссылка на игровой объект
     }
+
+    public float offset = 0.5f; // Длина линии
+    List<Vector3> generatedPoints = new List<Vector3>();
+
+    [SerializeField] private Transform lineCenterFirst ; // Координаты центра линии
+
+
+    List<Vector3> DistributePointsOnLine(int numberOfPoints)
+    {
+        Vector3 lineCenter = lineCenterFirst.position;
+        float lineLength = numberOfPoints;
+        List<Vector3> points = new List<Vector3>();
+
+        for (int i = 0; i < numberOfPoints; i++)
+        {
+            float t = i / (float)(numberOfPoints - 1); // Нормализованный параметр от 0 до 1
+            Vector3 pointPosition = lineCenter + new Vector3(t * lineLength - lineLength / 2f, 0f, 0f);
+            points.Add(pointPosition);
+            Debug.Log(pointPosition);
+        }
+        return points;
+    }
+
+    
     public class CardClickHandler : MonoBehaviour
     {
         private Card parentCard;
@@ -87,7 +111,7 @@ public class CardDeck : MonoBehaviour
                 newCard.suit = (Suit)j;
                 newCard.face = cardsSprites[i * 4 + j];
                 newCard.back = cardsSpriteBack;
-                newCard.gameObject = Instantiate(new GameObject(), Vector3.zero, Quaternion.identity); // Создаем пустой игровой объект
+                // newCard.gameObject = Instantiate(new GameObject(), Vector3.zero, Quaternion.identity); // Создаем пустой игровой объект
                 // Здесь вы можете добавить изображения для лицевой и задней стороны каждой карты
                 // Например, newCard.face = Resources.Load<Sprite>("Sprites/" + i + "_" + (Suit)j);
                 // newCard.back = Resources.Load<Sprite>("Sprites/back");
@@ -98,6 +122,7 @@ public class CardDeck : MonoBehaviour
 
     void ShuffleDeck()
     {
+   
         for (int i = 0; i < cards.Count; i++)
         {
             Card temp = cards[i];
@@ -111,14 +136,20 @@ public class CardDeck : MonoBehaviour
     {
         player1Hand = new List<Card>();
         player2Hand = new List<Card>();
-
-        for (int i = 0; i < 4; i++)
+        int SuteCounts = 0;
+        generatedPointIndex = 0;
+        for (int i = 0; i < 5; i++)
         {
+            if (player1Hand.FindIndex(card => (int) card.value == (int) cards[i].value) == -1)
+            {
+                SuteCounts++;
+            }
             player1Hand.Add(cards[i]);
-            player2Hand.Add(cards[i + 4]);
-           
+            player2Hand.Add(cards[i + 5]);
         }
-        for (int i = 0; i < 4; i++)
+        generatedPoints = DistributePointsOnLine(SuteCounts);
+
+        for (int i = 0; i < 5; i++)
         {
             GameObject player1Card = Instantiate(new GameObject(), GiveCardPosition(player1Hand[i].value, player1Hand, i), Quaternion.identity);
             SpriteRenderer renderer1 = player1Card.AddComponent<SpriteRenderer>();
@@ -155,9 +186,10 @@ public class CardDeck : MonoBehaviour
         }
     }
 
-
+    int generatedPointIndex = 0;
     private Vector3 GiveCardPosition(CardsNumber number, List<Card> playerCards, int j)
     {
+
         if (j > 0)
         {
             // Ищем карту с заданным значением в руке игрока
@@ -166,7 +198,7 @@ public class CardDeck : MonoBehaviour
             if (requestedCard != null && requestedCard != playerCards[j])
             {
                 // Если карта найдена, возвращаем позицию этой карты в массиве позиций
-                Vector3 newPos = player1CardPositions[playerCards.IndexOf(requestedCard)].position;
+                Vector3 newPos = generatedPoints[playerCards.IndexOf(requestedCard)];
                 List<Card> cards = new List<Card>();
                 cards = playerCards;
                 // cards.RemoveRange(j, playerCards.Count - j);
@@ -180,12 +212,14 @@ public class CardDeck : MonoBehaviour
                 return newPos;
             }
             // Если карта не найдена, возвращаем позицию player1CardPositions[j]
-            return player1CardPositions[j].position;
+            generatedPointIndex++;
+            return generatedPoints[generatedPointIndex -1];
         }
         else
         {
             // Если j <= 0, возвращаем позицию player1CardPositions[j]
-            return player1CardPositions[j].position;
+            generatedPointIndex++;
+            return generatedPoints[generatedPointIndex - 1];
         }
     }
 
@@ -260,3 +294,5 @@ public class CardDeck : MonoBehaviour
         }
     }
 }
+
+
