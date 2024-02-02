@@ -79,7 +79,7 @@ public class CardDeck : MonoBehaviour
             if (parentCard != null)
             {
                 //OnClickedOnCard.Invoke((int)parentCard.value);
-                cardDeck.DoPlayerMove((int)parentCard.value);
+                cardDeck.PlayerMove(player1Hand, player2Hand, (int)parentCard.value);
                 Debug.Log("Нажата карта: " + parentCard.value + " " + parentCard.suit);
             }
             else
@@ -89,6 +89,7 @@ public class CardDeck : MonoBehaviour
         }
     }
 
+    private List<CardClickHandler> cardObjs = new List<CardClickHandler>();
     public List<Card> cards; // Список карт в колоде
     public List<Card> player1Hand = null; // Рука игрока 1
     public List<Card> player2Hand; // Рука игрока 2
@@ -163,8 +164,69 @@ public class CardDeck : MonoBehaviour
             transform.localScale = initialScale * scale;
         }
     }
+    void CreateCards(int Count)
+    {
+        DestroyOldCards();
 
-        void DealCards()
+        int SuteCounts = 0;
+        generatedPointIndex = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            if (player1Hand.FindIndex(card => (int)card.value == (int)cards[i].value) == -1)
+            {
+                SuteCounts++;
+            }
+        }
+        generatedPoints = DistributePointsOnLine(SuteCounts);
+        
+        for (int i = 0;i < Count;i++)
+            CreateCard(i);
+
+    }
+    void DestroyOldCards()
+    {
+       for (int i = 0; i<cardObjs.Count; i++)
+            Destroy(cardObjs[i].gameObject);
+
+       cardObjs.Clear();
+    }
+    void CreateCard(int i)
+    {
+        GameObject player1Card = Instantiate(new GameObject(), GiveCardPosition(player1Hand[i].value, player1Hand, i), Quaternion.identity);
+        SpriteRenderer renderer1 = player1Card.AddComponent<SpriteRenderer>();
+        renderer1.sprite = player1Hand[i].face;
+        renderer1.sortingOrder = 6 - GetCardOrderInLayer(player1Hand[i].value, player1Hand, i);
+        player1Card.transform.localScale = Vector3.one * 0.1f;
+        player1Card.transform.eulerAngles = new Vector3(0, 0, GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) == 0 ? 0 : GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) % 2 == 0 ? 5 : -5);
+        Debug.Log(player1Card.name);
+        BoxCollider2D collider = player1Card.AddComponent<BoxCollider2D>();
+
+
+
+        PulseEffect pulseEffect = player1Card.AddComponent<PulseEffect>();
+
+        // Настройка параметров пульсации, если необходимо
+        pulseEffect.pulseSpeed = 0.105f;
+        pulseEffect.pulseScale = 0.04f;
+
+
+        collider.size = new Vector2(12, 19);
+        collider.enabled = true;
+
+
+        //player1Hand[i].gameObject.name = "Player1Card" + i; // Устанавливаем осмысленное имя
+        player1Card.AddComponent<CardClickHandler>();
+
+        CardClickHandler clickHandler = player1Card.GetComponent<CardClickHandler>();
+        if (clickHandler == null)
+        {
+            clickHandler = player1Card.AddComponent<CardClickHandler>();
+        }
+        clickHandler.Initialize(player1Hand[i], player1Hand, player2Hand, this);
+
+        cardObjs.Add(clickHandler);
+    }
+    void DealCards()
     {
         player1Hand = new List<Card>();
         player2Hand = new List<Card>();
@@ -181,43 +243,12 @@ public class CardDeck : MonoBehaviour
         }
         generatedPoints = DistributePointsOnLine(SuteCounts);
 
+        DestroyOldCards();
+
         for (int i = 0; i < 5; i++)
         {
-            GameObject player1Card = Instantiate(new GameObject(), GiveCardPosition(player1Hand[i].value, player1Hand, i), Quaternion.identity);
-            SpriteRenderer renderer1 = player1Card.AddComponent<SpriteRenderer>();
-            renderer1.sprite = player1Hand[i].face;
-            renderer1.sortingOrder = 6 - GetCardOrderInLayer(player1Hand[i].value, player1Hand, i);
-            player1Card.transform.localScale = Vector3.one * 0.1f;
-            player1Card.transform.eulerAngles = new Vector3(0, 0, GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) == 0 ? 0 : GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) % 2 == 0 ? 5 : -5);
-            Debug.Log(player1Card.name);
-            BoxCollider2D collider = player1Card.AddComponent<BoxCollider2D>();
-
-
-
-            PulseEffect pulseEffect = player1Card.AddComponent<PulseEffect>();
-
-            // Настройка параметров пульсации, если необходимо
-            pulseEffect.pulseSpeed = 0.105f;
-            pulseEffect.pulseScale = 0.04f;
-
-
-            collider.size = new Vector2(12, 19);
-            collider.enabled = true;
-
-
-            //player1Hand[i].gameObject.name = "Player1Card" + i; // Устанавливаем осмысленное имя
-            player1Card.AddComponent<CardClickHandler>();
-
-            CardClickHandler clickHandler = player1Card.GetComponent<CardClickHandler>();
-            if (clickHandler == null)
-            {
-                clickHandler = player1Card.AddComponent<CardClickHandler>();
-            }
-                clickHandler.Initialize(player1Hand[i], player1Hand, player2Hand, this);
-                //clickHandler.OnClickedOnCard.AddListener(this.DoPlayerMove);
-
-            // Устанавливаем родительскую карту для CardClickHandler
-
+            CreateCard(i);
+            
             GameObject player2Card = Instantiate(new GameObject(), player2CardPositions[i].position, Quaternion.identity);
             SpriteRenderer renderer2 = player2Card.AddComponent<SpriteRenderer>();
             renderer2.sprite = player2Hand[i].back;
@@ -254,12 +285,14 @@ public class CardDeck : MonoBehaviour
                 return newPos;
             }
             // Если карта не найдена, возвращаем позицию player1CardPositions[j]
+            Debug.Log(generatedPointIndex);
             generatedPointIndex++;
             return generatedPoints[generatedPointIndex -1];
         }
         else
         {
             // Если j <= 0, возвращаем позицию player1CardPositions[j]
+            Debug.Log(generatedPointIndex);
             generatedPointIndex++;
             return generatedPoints[generatedPointIndex - 1];
         }
@@ -281,14 +314,8 @@ public class CardDeck : MonoBehaviour
         return 0;
     }
 
-    public void DoPlayerMove(int requestedValue)
-    {
-        PlayerMove(player1Hand, player2Hand,requestedValue);
-    }
-
-
     // Функция, которая обрабатывает ходы игроков
-    void PlayerMove(List<Card> currentPlayerHand, List<Card> otherPlayerHand, int requestedValue)
+    public void PlayerMove(List<Card> currentPlayerHand, List<Card> otherPlayerHand, int requestedValue)
     {
         // Пример хода игрока
         // Проверяем, есть ли у противника карта с запрошенным значением
@@ -305,7 +332,7 @@ public class CardDeck : MonoBehaviour
                 otherPlayerHand.Remove(requestedCard);
 
                 // Добавляем проверку на биту (если набор собран)
-                CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue);
+                //CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue);
             }
             else
             {
@@ -313,6 +340,7 @@ public class CardDeck : MonoBehaviour
                 // Можете добавить свою логику для таких ситуаций
             }
         }
+        CreateCards(currentPlayerHand.Count);
     }
 
     // Проверка наличия биты (набора карт)
@@ -321,7 +349,7 @@ public class CardDeck : MonoBehaviour
         int cardsCount = 0;
         for (int i = 0; i < 4; i++)
         {
-            Card requestedCard = playerHand.Find(card => card.value == number);
+            Card requestedCard = playerHand.Find(card => card.value == number && playerHand.IndexOf(card) >= i);
 
             if (requestedCard != null)
             {
