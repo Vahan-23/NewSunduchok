@@ -132,7 +132,26 @@ public class CardDeck : MonoBehaviour
         }
     }
 
-    void DealCards()
+    public class PulseEffect : MonoBehaviour
+    {
+        public float pulseSpeed = 0.4f;  // Скорость пульсации
+        public float pulseScale = 0.4f;  // Максимальный масштаб во время пульсации
+
+        private Vector3 initialScale;
+
+        void Start()
+        {
+            initialScale = transform.localScale;
+        }
+
+        void Update()
+        {
+            float scale = 1.0f - Mathf.PingPong(Time.time * pulseSpeed, pulseScale);
+            transform.localScale = initialScale * scale;
+        }
+    }
+
+        void DealCards()
     {
         player1Hand = new List<Card>();
         player2Hand = new List<Card>();
@@ -159,6 +178,14 @@ public class CardDeck : MonoBehaviour
             player1Card.transform.eulerAngles = new Vector3(0, 0, GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) == 0 ? 0 : GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) % 2 == 0 ? 5 : -5);
             Debug.Log(player1Card.name);
             BoxCollider2D collider = player1Card.AddComponent<BoxCollider2D>();
+
+
+
+            PulseEffect pulseEffect = player1Card.AddComponent<PulseEffect>();
+
+            // Настройка параметров пульсации, если необходимо
+            pulseEffect.pulseSpeed = 0.105f;
+            pulseEffect.pulseScale = 0.04f;
 
 
             collider.size = new Vector2(12, 19);
@@ -201,6 +228,8 @@ public class CardDeck : MonoBehaviour
                 Vector3 newPos = generatedPoints[playerCards.IndexOf(requestedCard)];
                 List<Card> cards = new List<Card>();
                 cards = playerCards;
+
+
                 // cards.RemoveRange(j, playerCards.Count - j);
 
                 // Считаем количество карт с тем же значением, чтобы определить смещение по Y
