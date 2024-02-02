@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine.Rendering;
 using System.Linq;
+using UnityEngine.Events;
 
 public class CardDeck : MonoBehaviour
 {
@@ -57,28 +58,39 @@ public class CardDeck : MonoBehaviour
         return points;
     }
 
-    
     public class CardClickHandler : MonoBehaviour
     {
         private Card parentCard;
+        private List<Card> player1Hand;
+        private List<Card> player2Hand;
+        //public UnityEvent<int> OnClickedOnCard;
+        private CardDeck cardDeck;
 
-        public void SetParentCard(Card card)
+        public void Initialize(Card parentCard, List<Card> player1Hand, List<Card> player2Hand, CardDeck cardDeck)
         {
-            parentCard = card;
+            this.parentCard = parentCard;
+            this.player1Hand = player1Hand;
+            this.player2Hand = player2Hand;
+            this.cardDeck = cardDeck;
         }
 
         public void OnMouseDown()
         {
             if (parentCard != null)
             {
-                // Выводим информацию при нажатии на карту
+                //OnClickedOnCard.Invoke((int)parentCard.value);
+                cardDeck.DoPlayerMove((int)parentCard.value);
                 Debug.Log("Нажата карта: " + parentCard.value + " " + parentCard.suit);
+            }
+            else
+            {
+                Debug.LogError("parentCard is null in OnMouseDown");
             }
         }
     }
 
     public List<Card> cards; // Список карт в колоде
-    public List<Card> player1Hand; // Рука игрока 1
+    public List<Card> player1Hand = null; // Рука игрока 1
     public List<Card> player2Hand; // Рука игрока 2
     public List<Card> bittenCards1;
     public List<Card> bittenCards2;// Бита (собранные наборы)
@@ -89,6 +101,7 @@ public class CardDeck : MonoBehaviour
 
     [SerializeField] private List<Transform> player1CardPositions;
     [SerializeField] private List<Transform> player2CardPositions;
+
 
     void Start()
     {
@@ -200,10 +213,10 @@ public class CardDeck : MonoBehaviour
             {
                 clickHandler = player1Card.AddComponent<CardClickHandler>();
             }
+                clickHandler.Initialize(player1Hand[i], player1Hand, player2Hand, this);
+                //clickHandler.OnClickedOnCard.AddListener(this.DoPlayerMove);
 
             // Устанавливаем родительскую карту для CardClickHandler
-            clickHandler.SetParentCard(player1Hand[i]);
-
 
             GameObject player2Card = Instantiate(new GameObject(), player2CardPositions[i].position, Quaternion.identity);
             SpriteRenderer renderer2 = player2Card.AddComponent<SpriteRenderer>();
@@ -268,6 +281,10 @@ public class CardDeck : MonoBehaviour
         return 0;
     }
 
+    public void DoPlayerMove(int requestedValue)
+    {
+        PlayerMove(player1Hand, player2Hand,requestedValue);
+    }
 
 
     // Функция, которая обрабатывает ходы игроков
@@ -275,9 +292,9 @@ public class CardDeck : MonoBehaviour
     {
         // Пример хода игрока
         // Проверяем, есть ли у противника карта с запрошенным значением
+         Debug.Log(requestedValue);
         for (int i = 0; i < 4; i++)
         {
-
 
             Card requestedCard = otherPlayerHand.Find(card => card.value == (CardsNumber)requestedValue);
 
