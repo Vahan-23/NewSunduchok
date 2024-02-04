@@ -164,20 +164,27 @@ public class CardDeck : MonoBehaviour
             transform.localScale = initialScale * scale;
         }
     }
+
+    int suteCounts = 0;
     void CreateCards(int Count)
     {
+        Debug.Log("COUNTS   " + Count);
+        Debug.Log("PLAYER 1 COUND   " + player1Hand.Count);
         DestroyOldCards();
 
         int SuteCounts = 0;
+
         generatedPointIndex = 0;
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < Count; i++)
         {
-            if (player1Hand.FindIndex(card => (int)card.value == (int)cards[i].value) == -1)
+            if (player1Hand.FindIndex(card => (int)card.value == (int)player1Hand[i].value) == -1)
             {
                 SuteCounts++;
             }
         }
-        generatedPoints = DistributePointsOnLine(SuteCounts);
+        Debug.Log("SUTE COUNTS   " + SuteCounts);
+        generatedPoints = DistributePointsOnLine(suteCounts);
+
         
         for (int i = 0;i < Count;i++)
             CreateCard(i);
@@ -228,24 +235,26 @@ public class CardDeck : MonoBehaviour
     }
     void DealCards()
     {
+       
         player1Hand = new List<Card>();
         player2Hand = new List<Card>();
+        suteCounts = 0;
         int SuteCounts = 0;
         generatedPointIndex = 0;
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
         {
             if (player1Hand.FindIndex(card => (int) card.value == (int) cards[i].value) == -1)
             {
                 SuteCounts++;
             }
             player1Hand.Add(cards[i]);
-            player2Hand.Add(cards[i + 5]);
+            player2Hand.Add(cards[i + 4]);
         }
         generatedPoints = DistributePointsOnLine(SuteCounts);
-
+        suteCounts = SuteCounts;
         DestroyOldCards();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
         {
             CreateCard(i);
             
@@ -258,6 +267,8 @@ public class CardDeck : MonoBehaviour
     }
 
     int generatedPointIndex = 0;
+
+
     private Vector3 GiveCardPosition(CardsNumber number, List<Card> playerCards, int j)
     {
 
@@ -269,7 +280,7 @@ public class CardDeck : MonoBehaviour
             if (requestedCard != null && requestedCard != playerCards[j])
             {
                 // Если карта найдена, возвращаем позицию этой карты в массиве позиций
-                Vector3 newPos = generatedPoints[playerCards.IndexOf(requestedCard)];
+                Vector3 newPos = generatedPoints[playerCards.IndexOf(requestedCard)];  // minchev irar vra qarer kan helac , ira indexy != generatedPoints-in 
                 List<Card> cards = new List<Card>();
                 cards = playerCards;
 
@@ -287,14 +298,17 @@ public class CardDeck : MonoBehaviour
             // Если карта не найдена, возвращаем позицию player1CardPositions[j]
             Debug.Log(generatedPointIndex);
             generatedPointIndex++;
+            Debug.Log("generated points"+generatedPoints.Count);
             return generatedPoints[generatedPointIndex -1];
         }
         else
         {
             // Если j <= 0, возвращаем позицию player1CardPositions[j]
-            Debug.Log(generatedPointIndex);
+           //Debug.Log(generatedPointIndex);
             generatedPointIndex++;
-            return generatedPoints[generatedPointIndex - 1];
+            Debug.Log(generatedPointIndex -1);
+
+            return generatedPoints[generatedPointIndex - 1];        
         }
     }
 
