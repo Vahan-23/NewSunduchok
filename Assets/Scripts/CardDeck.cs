@@ -33,6 +33,7 @@ public class CardDeck : MonoBehaviour
         public Suit suit; // Масть карты
         public Sprite face; // Изображение карты лицом вверх
         public Sprite back; // Задняя сторона карты
+        public int posPointIndex;
        // public GameObject gameObject; // Ссылка на игровой объект
     }
 
@@ -280,7 +281,8 @@ public class CardDeck : MonoBehaviour
             if (requestedCard != null && requestedCard != playerCards[j])
             {
                 // Если карта найдена, возвращаем позицию этой карты в массиве позиций
-                Vector3 newPos = generatedPoints[playerCards.IndexOf(requestedCard)];  // minchev irar vra qarer kan helac , ira indexy != generatedPoints-in 
+                Vector3 newPos = generatedPoints[requestedCard.posPointIndex]; //[playerCards.IndexOf(requestedCard)];  // minchev irar vra qarer kan helac , ira indexy != generatedPoints-in 
+                playerCards[j].posPointIndex = requestedCard.posPointIndex;
                 List<Card> cards = new List<Card>();
                 cards = playerCards;
 
@@ -295,11 +297,14 @@ public class CardDeck : MonoBehaviour
 
                 return newPos;
             }
-            // Если карта не найдена, возвращаем позицию player1CardPositions[j]
-            Debug.Log(generatedPointIndex);
+
+            playerCards[j].posPointIndex = generatedPointIndex;
             generatedPointIndex++;
-            Debug.Log("generated points"+generatedPoints.Count);
             return generatedPoints[generatedPointIndex -1];
+
+            // Если карта не найдена, возвращаем позицию player1CardPositions[j]
+            //Debug.Log(generatedPointIndex);
+            //Debug.Log("generated points"+generatedPoints.Count);
         }
         else
         {
