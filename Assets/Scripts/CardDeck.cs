@@ -34,13 +34,13 @@ public class CardDeck : MonoBehaviour
         public Sprite face; // Изображение карты лицом вверх
         public Sprite back; // Задняя сторона карты
         public int posPointIndex;
-       // public GameObject gameObject; // Ссылка на игровой объект
+        // public GameObject gameObject; // Ссылка на игровой объект
     }
 
     public float offset = 0.5f; // Длина линии
     List<Vector3> generatedPoints = new List<Vector3>();
 
-    [SerializeField] private Transform lineCenterFirst ; // Координаты центра линии
+    [SerializeField] private Transform lineCenterFirst; // Координаты центра линии
 
 
     List<Vector3> DistributePointsOnLine(int numberOfPoints)
@@ -137,7 +137,7 @@ public class CardDeck : MonoBehaviour
 
     void ShuffleDeck()
     {
-   
+
         for (int i = 0; i < cards.Count; i++)
         {
             Card temp = cards[i];
@@ -186,17 +186,17 @@ public class CardDeck : MonoBehaviour
         Debug.Log("SUTE COUNTS   " + SuteCounts);
         generatedPoints = DistributePointsOnLine(suteCounts);
 
-        
-        for (int i = 0;i < Count;i++)
+
+        for (int i = 0; i < Count; i++)
             CreateCard(i);
 
     }
     void DestroyOldCards()
     {
-       for (int i = 0; i<cardObjs.Count; i++)
+        for (int i = 0; i < cardObjs.Count; i++)
             Destroy(cardObjs[i].gameObject);
 
-       cardObjs.Clear();
+        cardObjs.Clear();
     }
     void CreateCard(int i)
     {
@@ -236,7 +236,7 @@ public class CardDeck : MonoBehaviour
     }
     void DealCards()
     {
-       
+
         player1Hand = new List<Card>();
         player2Hand = new List<Card>();
         suteCounts = 0;
@@ -244,7 +244,7 @@ public class CardDeck : MonoBehaviour
         generatedPointIndex = 0;
         for (int i = 0; i < 4; i++)
         {
-            if (player1Hand.FindIndex(card => (int) card.value == (int) cards[i].value) == -1)
+            if (player1Hand.FindIndex(card => (int)card.value == (int)cards[i].value) == -1)
             {
                 SuteCounts++;
             }
@@ -258,7 +258,7 @@ public class CardDeck : MonoBehaviour
         for (int i = 0; i < 4; i++)
         {
             CreateCard(i);
-            
+
             GameObject player2Card = Instantiate(new GameObject(), player2CardPositions[i].position, Quaternion.identity);
             SpriteRenderer renderer2 = player2Card.AddComponent<SpriteRenderer>();
             renderer2.sprite = player2Hand[i].back;
@@ -300,7 +300,7 @@ public class CardDeck : MonoBehaviour
 
             playerCards[j].posPointIndex = generatedPointIndex;
             generatedPointIndex++;
-            return generatedPoints[generatedPointIndex -1];
+            return generatedPoints[generatedPointIndex - 1];
 
             // Если карта не найдена, возвращаем позицию player1CardPositions[j]
             //Debug.Log(generatedPointIndex);
@@ -309,11 +309,11 @@ public class CardDeck : MonoBehaviour
         else
         {
             // Если j <= 0, возвращаем позицию player1CardPositions[j]
-           //Debug.Log(generatedPointIndex);
+            //Debug.Log(generatedPointIndex);
             generatedPointIndex++;
-            Debug.Log(generatedPointIndex -1);
+            Debug.Log(generatedPointIndex - 1);
 
-            return generatedPoints[generatedPointIndex - 1];        
+            return generatedPoints[generatedPointIndex - 1];
         }
     }
 
@@ -338,7 +338,7 @@ public class CardDeck : MonoBehaviour
     {
         // Пример хода игрока
         // Проверяем, есть ли у противника карта с запрошенным значением
-         Debug.Log(requestedValue);
+        Debug.Log(requestedValue);
         for (int i = 0; i < 4; i++)
         {
 
@@ -351,7 +351,7 @@ public class CardDeck : MonoBehaviour
                 otherPlayerHand.Remove(requestedCard);
 
                 // Добавляем проверку на биту (если набор собран)
-                //CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue);
+                CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue);
             }
             else
             {
@@ -366,26 +366,28 @@ public class CardDeck : MonoBehaviour
     void CheckForBittenSets(List<Card> playerHand, CardsNumber number)
     {
         int cardsCount = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < playerHand.Count; i++)
         {
-            Card requestedCard = playerHand.Find(card => card.value == number && playerHand.IndexOf(card) >= i);
-
-            if (requestedCard != null)
+            Card requestedCard = playerHand[i];
+            if (requestedCard.value == number)
             {
                 cardsCount++;
             }
-
         }
+
         if (cardsCount == 4)
         {
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < playerHand.Count; i++)
             {
-                Card requestedCard = playerHand.Find(card => card.value == number);
-                bittenCards1.Add(requestedCard);
-                player1Hand.Remove(requestedCard);
+                Card requestedCard = playerHand[i];
+                if (requestedCard.value == number)
+                {
+                    bittenCards1.Add(requestedCard);
+                    playerHand.RemoveAt(i);
+                    i--; // Уменьшаем индекс, так как удалили элемент из списка
+                }
             }
         }
     }
+
 }
-
-
