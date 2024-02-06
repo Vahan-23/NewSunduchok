@@ -40,6 +40,7 @@ public class CardDeck : MonoBehaviour
     public float offset = 0.5f; // Длина линии
     List<Vector3> generatedPoints = new List<Vector3>();
 
+    private int deckUpperCardIndex = 0;
     [SerializeField] private Transform lineCenterFirst; // Координаты центра линии
 
 
@@ -251,6 +252,7 @@ public class CardDeck : MonoBehaviour
             player1Hand.Add(cards[i]);
             player2Hand.Add(cards[i + 4]);
         }
+        deckUpperCardIndex = 8;
         generatedPoints = DistributePointsOnLine(SuteCounts);
         suteCounts = SuteCounts;
         DestroyOldCards();
@@ -326,39 +328,52 @@ public class CardDeck : MonoBehaviour
 
             if (requestedCard != null && requestedCard != playerCards[j])
             {
-                return cards.Count(card => card.value == number && playerCards.IndexOf(card) < j);
+                return playerCards.Count(card => card.value == number && playerCards.IndexOf(card) < j);
             }
         }
 
         return 0;
     }
 
-    // Функция, которая обрабатывает ходы игроков
     public void PlayerMove(List<Card> currentPlayerHand, List<Card> otherPlayerHand, int requestedValue)
-    {
-        // Пример хода игрока
-        // Проверяем, есть ли у противника карта с запрошенным значением
+    {      
         Debug.Log(requestedValue);
+        bool foundRequestedCard = false;
+
         for (int i = 0; i < 4; i++)
         {
-
             Card requestedCard = otherPlayerHand.Find(card => card.value == (CardsNumber)requestedValue);
 
             if (requestedCard != null)
             {
-                // Перемещаем карту из руки противника в руку текущего игрока
                 currentPlayerHand.Add(requestedCard);
                 otherPlayerHand.Remove(requestedCard);
 
-                // Добавляем проверку на биту (если набор собран)
+                foundRequestedCard = true;
+
                 CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue);
             }
             else
             {
-                // Обработка случая, когда противник не имеет нужной карты
-                // Можете добавить свою логику для таких ситуаций
+               
+                
             }
         }
+        if (!foundRequestedCard)
+        {
+            if (deckUpperCardIndex < cards.Count)
+            {
+                if (currentPlayerHand.FindIndex(card => card.value == cards[deckUpperCardIndex].value) == -1)
+                    suteCounts++;
+                
+                currentPlayerHand.Add(cards[deckUpperCardIndex]);
+                CheckForBittenSets(currentPlayerHand, cards[deckUpperCardIndex].value);
+
+                deckUpperCardIndex++;
+            }else deckUpperCardIndex = cards.Count;
+
+        }
+
         CreateCards(currentPlayerHand.Count);
     }
 
@@ -377,6 +392,7 @@ public class CardDeck : MonoBehaviour
 
         if (cardsCount == 4)
         {
+            suteCounts--;
             for (int i = 0; i < playerHand.Count; i++)
             {
                 Card requestedCard = playerHand[i];
