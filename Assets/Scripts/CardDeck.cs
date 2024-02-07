@@ -37,7 +37,6 @@ public class CardDeck : MonoBehaviour
         // public GameObject gameObject; // Ссылка на игровой объект
     }
 
-    public float offset = 0.5f; // Длина линии
     List<Vector3> generatedPoints = new List<Vector3>();
 
     private int deckUpperCardIndex = 0;
@@ -46,16 +45,20 @@ public class CardDeck : MonoBehaviour
 
     List<Vector3> DistributePointsOnLine(int numberOfPoints)
     {
+
         Vector3 lineCenter = lineCenterFirst.position;
         float lineLength = numberOfPoints;
         List<Vector3> points = new List<Vector3>();
-
+        float offset = 1.4566f;  // Длина линии
         for (int i = 0; i < numberOfPoints; i++)
         {
-            float t = i / (float)(numberOfPoints - 1); // Нормализованный параметр от 0 до 1
-            Vector3 pointPosition = lineCenter + new Vector3(t * lineLength - lineLength / 2f, 0f, 0f);
+            float t = i / (float)(numberOfPoints - 1); 
+            Vector3 pointPosition = lineCenter + new Vector3(t * offset * (numberOfPoints - 1) - offset * (numberOfPoints - 1) / 2f, 0f, 0f);
+
+
             points.Add(pointPosition);
             Debug.Log(pointPosition);
+            Debug.Log(numberOfPoints);
         }
         return points;
     }
