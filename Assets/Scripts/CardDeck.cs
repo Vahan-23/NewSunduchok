@@ -383,28 +383,32 @@ public class CardDeck : MonoBehaviour
     // Проверка наличия биты (набора карт)
     void CheckForBittenSets(List<Card> playerHand, CardsNumber number)
     {
-        int cardsCount = 0;
-        for (int i = 0; i < playerHand.Count; i++)
+        List<Card> cardsToRemove = new List<Card>();
+
+        // Находим все карты, которые нужно удалить
+        foreach (var card in playerHand)
         {
-            Card requestedCard = playerHand[i];
-            if (requestedCard.value == number)
+            if (card.value == number)
             {
-                cardsCount++;
+                cardsToRemove.Add(card);
             }
         }
 
-        if (cardsCount == 4)
+        // Если найдено 4 карты с таким значением, удаляем их из руки игрока
+        if (cardsToRemove.Count == 4)
         {
             suteCounts--;
+
+            foreach (var card in cardsToRemove)
+            {
+                bittenCards1.Add(card);
+                playerHand.Remove(card);
+            }
+
+            // Обновляем индексы оставшихся карт в playerHand
             for (int i = 0; i < playerHand.Count; i++)
             {
-                Card requestedCard = playerHand[i];
-                if (requestedCard.value == number)
-                {
-                    bittenCards1.Add(requestedCard);
-                    playerHand.RemoveAt(i);
-                    i--; // Уменьшаем индекс, так как удалили элемент из списка
-                }
+                playerHand[i].posPointIndex = i;
             }
         }
     }
