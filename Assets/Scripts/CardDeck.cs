@@ -57,8 +57,6 @@ public class CardDeck : MonoBehaviour
 
 
             points.Add(pointPosition);
-            Debug.Log(pointPosition);
-            Debug.Log(numberOfPoints);
         }
         return points;
     }
@@ -99,6 +97,8 @@ public class CardDeck : MonoBehaviour
     public List<Card> player1Hand = null; // Рука игрока 1
     public List<Card> player2Hand; // Рука игрока 2
     public List<Card> bittenCards1;
+    private int bittenCount1 = 0;
+    private int bittenCount2 = 0;
     public List<Card> bittenCards2;// Бита (собранные наборы)
     [SerializeField] private List<Sprite> cardsSprites;
     [SerializeField] private Sprite cardsSpriteBack;
@@ -173,8 +173,6 @@ public class CardDeck : MonoBehaviour
     int suteCounts = 0;
     void CreateCards(int Count)
     {
-        Debug.Log("COUNTS   " + Count);
-        Debug.Log("PLAYER 1 COUND   " + player1Hand.Count);
         DestroyOldCards();
 
         int SuteCounts = 0;
@@ -187,7 +185,6 @@ public class CardDeck : MonoBehaviour
                 SuteCounts++;
             }
         }
-        Debug.Log("SUTE COUNTS   " + SuteCounts);
         generatedPoints = DistributePointsOnLine(suteCounts);
 
 
@@ -210,7 +207,6 @@ public class CardDeck : MonoBehaviour
         renderer1.sortingOrder = 6 - GetCardOrderInLayer(player1Hand[i].value, player1Hand, i);
         player1Card.transform.localScale = Vector3.one * 0.1f;
         player1Card.transform.eulerAngles = new Vector3(0, 0, GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) == 0 ? 0 : GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) % 2 == 0 ? 5 : -5);
-        Debug.Log(player1Card.name);
         BoxCollider2D collider = player1Card.AddComponent<BoxCollider2D>();
 
 
@@ -316,7 +312,6 @@ public class CardDeck : MonoBehaviour
             // Если j <= 0, возвращаем позицию player1CardPositions[j]
             //Debug.Log(generatedPointIndex);
             generatedPointIndex++;
-            Debug.Log(generatedPointIndex - 1);
 
             return generatedPoints[generatedPointIndex - 1];
         }
@@ -340,7 +335,6 @@ public class CardDeck : MonoBehaviour
 
     public void PlayerMove(List<Card> currentPlayerHand, List<Card> otherPlayerHand, int requestedValue)
     {      
-        Debug.Log(requestedValue);
         bool foundRequestedCard = false;
 
         for (int i = 0; i < 4; i++)
@@ -374,11 +368,65 @@ public class CardDeck : MonoBehaviour
 
                 deckUpperCardIndex++;
             }else deckUpperCardIndex = cards.Count;
-
+            OpponentMove(otherPlayerHand, currentPlayerHand);
         }
 
         CreateCards(currentPlayerHand.Count);
     }
+
+
+
+
+    public void OpponentMove(List<Card> opponentHand, List<Card> playerHand)
+    {
+        // Если у противника есть карты в руке
+        if (opponentHand.Count > 0)
+        {
+            // Выбираем случайный индекс карты из руки противника
+            int randomIndex = Random.Range(0, opponentHand.Count);
+            Card selectedCard = opponentHand[randomIndex];
+
+            // Проверяем наличие выбранной карты у игрока
+            Card requestedCard = playerHand.Find(card => card.value == selectedCard.value);
+
+            if (requestedCard != null)
+            {
+                // Если карта найдена, противник берет её у игрока
+                opponentHand.Add(requestedCard);
+                playerHand.Remove(requestedCard);
+                Debug.Log("Противник получил карту " + requestedCard.value + " от игрока.");
+
+                // Проверяем наличие биты после хода противника
+                CheckForBittenOpponentSets(opponentHand, requestedCard.value);
+            }
+            else
+            {
+                // Если у игрока нет запрошенной карты, противник берет карту из колоды
+                if (deckUpperCardIndex < cards.Count)
+                {
+                    opponentHand.Add(cards[deckUpperCardIndex]);
+                    deckUpperCardIndex++;
+                    Debug.Log("Противник взял карту из колоды.");
+
+                    // Проверяем наличие биты после хода противника
+                    CheckForBittenOpponentSets(opponentHand, cards[deckUpperCardIndex - 1].value);
+                }
+                else
+                {
+                    Debug.Log("Колода пуста, противник не может взять карту.");
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("Противник не имеет карт в руке.");
+        }
+        CreateCards(playerHand.Count);
+    }
+
+
+
+
 
     // Проверка наличия биты (набора карт)
     void CheckForBittenSets(List<Card> playerHand, CardsNumber number)
@@ -402,6 +450,7 @@ public class CardDeck : MonoBehaviour
             foreach (var card in cardsToRemove)
             {
                 bittenCards1.Add(card);
+                bittenCount1++;
                 playerHand.Remove(card);
             }
 
@@ -409,6 +458,40 @@ public class CardDeck : MonoBehaviour
             for (int i = 0; i < playerHand.Count; i++)
             {
                 playerHand[i].posPointIndex = i;
+            }
+        }
+    }
+
+
+    void CheckForBittenOpponentSets(List<Card> opponentHand, CardsNumber number)
+    {
+        List<Card> cardsToRemove = new List<Card>();
+
+        // Находим все карты, которые нужно удалить
+        foreach (var card in opponentHand)
+        {
+            if (card.value == number)
+            {
+                cardsToRemove.Add(card);
+            }
+        }
+
+        // Если найдено 4 карты с таким значением, удаляем их из руки игрока
+        if (cardsToRemove.Count == 4)
+        {
+            suteCounts--;
+
+            foreach (var card in cardsToRemove)
+            {
+                bittenCards2.Add(card);
+                bittenCount2++;
+                opponentHand.Remove(card);
+            }
+
+            // Обновляем индексы оставшихся карт в playerHand
+            for (int i = 0; i < opponentHand.Count; i++)
+            {
+                opponentHand[i].posPointIndex = i;
             }
         }
     }
