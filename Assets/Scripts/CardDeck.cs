@@ -395,7 +395,10 @@ public class CardDeck : MonoBehaviour
                 opponentHand.Add(requestedCard);
                 playerHand.Remove(requestedCard);
                 Debug.Log("Противник получил карту " + requestedCard.value + " от игрока.");
-
+                for (int i = 0; i < playerHand.Count; i++)
+                {
+                    playerHand[i].posPointIndex = i;
+                }
                 // Проверяем наличие биты после хода противника
                 CheckForBittenOpponentSets(opponentHand, requestedCard.value);
             }
