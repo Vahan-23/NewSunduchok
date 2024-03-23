@@ -47,17 +47,19 @@ public class CardDeck : MonoBehaviour
     {
 
         Vector3 lineCenter = lineCenterFirst.position;
-        float lineLength = numberOfPoints;
         List<Vector3> points = new List<Vector3>();
         float offset = 1.4566f;  // Длина линии
+        
+        float lineLength = offset * (numberOfPoints - 1);
         for (int i = 0; i < numberOfPoints; i++)
         {
-            float t = i / (float)(numberOfPoints - 1); 
-            Vector3 pointPosition = lineCenter + new Vector3(t * offset * (numberOfPoints - 1) - offset * (numberOfPoints - 1) / 2f, 0f, 0f);
-
+            float t = (float)(i / (float)(numberOfPoints - 1)); 
+            Vector3 pointPosition = lineCenter + new Vector3((t - 1/2) * lineLength - lineLength/2, 0f, 0f);
 
             points.Add(pointPosition);
         }
+        Debug.Log(points.Count + " :pointsCount");
+        Debug.Log(numberOfPoints + " :numberOfPoints");
         return points;
     }
 
@@ -201,7 +203,8 @@ public class CardDeck : MonoBehaviour
     }
     void CreateCard(int i)
     {
-        GameObject player1Card = Instantiate(new GameObject(), GiveCardPosition(player1Hand[i].value, player1Hand, i), Quaternion.identity);
+        GameObject player1Card = new GameObject();
+        player1Card.transform.position = GiveCardPosition(player1Hand[i].value, player1Hand, i);
         SpriteRenderer renderer1 = player1Card.AddComponent<SpriteRenderer>();
         renderer1.sprite = player1Hand[i].face;
         renderer1.sortingOrder = 6 - GetCardOrderInLayer(player1Hand[i].value, player1Hand, i);
@@ -260,7 +263,8 @@ public class CardDeck : MonoBehaviour
         {
             CreateCard(i);
 
-            GameObject player2Card = Instantiate(new GameObject(), player2CardPositions[i].position, Quaternion.identity);
+            GameObject player2Card = new GameObject();
+            player2Card.transform.position = player2CardPositions[i].position;
             SpriteRenderer renderer2 = player2Card.AddComponent<SpriteRenderer>();
             renderer2.sprite = player2Hand[i].back;
             renderer2.sortingOrder = 1;
@@ -422,11 +426,9 @@ public class CardDeck : MonoBehaviour
                     foundRequestedOpCard = true;
                     CheckForBittenOpponentSets(opponentHand, requestedCard.value);
 
-
-                   
                 }
-            }
 
+            }
             if (!foundRequestedOpCard)
             {
                 // Если у игрока нет запрошенной карты, противник берет карту из колоды
@@ -446,6 +448,7 @@ public class CardDeck : MonoBehaviour
             }
             else
             {
+                suteCounts--;
                 OpponentMove(opponentHand, playerHand);
             }
         }
