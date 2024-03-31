@@ -104,6 +104,7 @@ public class CardDeck : MonoBehaviour
     public List<Card> bittenCards2;// Бита (собранные наборы)
     [SerializeField] private List<Sprite> cardsSprites;
     [SerializeField] private Sprite cardsSpriteBack;
+    [SerializeField] private Animator _DogAnimator;
 
     // [SerializeField] private List<Transform> cardPositions;
 
@@ -353,8 +354,9 @@ public class CardDeck : MonoBehaviour
                 foundRequestedCard = true;
 
                 CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue, bittenCards1, suteCounts);
+                _DogAnimator.SetBool("GiveCard", true);
+                
                 Debug.Log("Игрок: найдена запрошенная карта: " + requestedCard.value);
-
             }       
             else
             {
@@ -415,6 +417,8 @@ public class CardDeck : MonoBehaviour
                     // Если карта найдена, противник берет её у игрока
                     opponentHand.Add(requestedCard);
                     playerHand.Remove(requestedCard);
+
+                    _DogAnimator.SetBool("GetCard", true);
                     Debug.Log("Противник получил карту " + requestedCard.value + " от игрока. Попытка номер " + cardCou);
 
                     for (int i = 0; i < playerHand.Count; i++)
