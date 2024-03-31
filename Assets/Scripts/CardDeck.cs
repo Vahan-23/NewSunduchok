@@ -209,6 +209,7 @@ public class CardDeck : MonoBehaviour
         SpriteRenderer renderer1 = player1Card.AddComponent<SpriteRenderer>();
         renderer1.sprite = player1Hand[i].face;
         renderer1.sortingOrder = 6 - GetCardOrderInLayer(player1Hand[i].value, player1Hand, i);
+        renderer1.sortingLayerName = "GamePlayElements and UI";
         player1Card.transform.localScale = Vector3.one * 0.1f;
         player1Card.transform.eulerAngles = new Vector3(0, 0, GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) == 0 ? 0 : GetCardOrderInLayer(player1Hand[i].value, player1Hand, i) % 2 == 0 ? 5 : -5);
         BoxCollider2D collider = player1Card.AddComponent<BoxCollider2D>();
@@ -264,12 +265,12 @@ public class CardDeck : MonoBehaviour
         {
             CreateCard(i);
 
-            GameObject player2Card = new GameObject();
-            player2Card.transform.position = player2CardPositions[i].position;
-            SpriteRenderer renderer2 = player2Card.AddComponent<SpriteRenderer>();
-            renderer2.sprite = player2Hand[i].back;
-            renderer2.sortingOrder = 1;
-            player2Card.transform.localScale = Vector3.one * 0.05f;
+            //GameObject player2Card = new GameObject();
+            //player2Card.transform.position = player2CardPositions[i].position;
+            //SpriteRenderer renderer2 = player2Card.AddComponent<SpriteRenderer>();
+            //renderer2.sprite = player2Hand[i].back;
+            //renderer2.sortingOrder = 1;
+            //player2Card.transform.localScale = Vector3.one * 0.05f;
         }
     }
 
