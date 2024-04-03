@@ -349,20 +349,23 @@ public class CardDeck : MonoBehaviour
 
             if (requestedCard != null)
             {
+
+                Debug.Log("Игрок: найдена запрошенная карта: " + requestedCard.value);
+
                 currentPlayerHand.Add(requestedCard);
                 otherPlayerHand.Remove(requestedCard);
 
                 foundRequestedCard = true;
 
-                CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue, bittenCards1, suteCounts);
                 _DogAnimator.SetBool("GiveCard", true);
-                
-                Debug.Log("Игрок: найдена запрошенная карта: " + requestedCard.value);
-            }       
+
+                CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue, bittenCards1, suteCounts);
+
+            }
             else
             {
                 Debug.Log("Игрок: Запрошенная карта не найдена в руке противника.");
-             
+
             }
         }
 
@@ -386,10 +389,21 @@ public class CardDeck : MonoBehaviour
             }
 
             //PlayerMove(otherPlayerHand, currentPlayerHand, (int)otherPlayerHand[Random.Range(0, otherPlayerHand.Count)].value);
+            CreateCards(currentPlayerHand.Count);
+
             OpponentMove(otherPlayerHand, currentPlayerHand);
         }
+        else StartCoroutine(StartTimer(2.0f));
 
-        CreateCards(currentPlayerHand.Count);
+
+        IEnumerator StartTimer(float duration)
+        {
+            yield return new WaitForSeconds(duration);
+
+            CreateCards(currentPlayerHand.Count);
+        }
+
+        //CreateCards(currentPlayerHand.Count);
     }
 
 
@@ -420,6 +434,7 @@ public class CardDeck : MonoBehaviour
                     playerHand.Remove(requestedCard);
 
                     _DogAnimator.SetBool("GetCard", true);
+
                     Debug.Log("Противник получил карту " + requestedCard.value + " от игрока. Попытка номер " + cardCou);
 
                     for (int i = 0; i < playerHand.Count; i++)
@@ -450,19 +465,37 @@ public class CardDeck : MonoBehaviour
                 {
                     Debug.Log("Противник запросил карту " + selectedCard.value + ", но не получил её от игрока. Колода пуста, противник не может взять карту.");
                 }
+
+                //CreateCards(playerHand.Count);
             }
             else
             {
                 suteCounts--;
-                OpponentMove(opponentHand, playerHand);
+                //OpponentMove(opponentHand, playerHand);
+                StartCoroutine(StartTimer(2.2f, true));
             }
         }
         else
         {
             Debug.Log("Противник не имеет карт в руке.");
+
+            //CreateCards(playerHand.Count);
         }
 
-        CreateCards(playerHand.Count);
+        IEnumerator StartTimer(float duration, bool move = false)
+        {
+            yield return new WaitForSeconds(duration);
+
+            CreateCards(playerHand.Count);
+
+            if (move)
+            {
+                yield return new WaitForSeconds(2);
+                OpponentMove(opponentHand, playerHand);
+            }
+        }
+
+        //CreateCards(playerHand.Count);
     }
 
 
