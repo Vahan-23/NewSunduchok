@@ -62,7 +62,7 @@ public class CardDeck : MonoBehaviour
         Debug.Log(numberOfPoints + " :numberOfPoints");
         return points;
     }
-
+   
     public class CardClickHandler : MonoBehaviour
     {
         private Card parentCard;
@@ -70,29 +70,36 @@ public class CardDeck : MonoBehaviour
         private List<Card> player2Hand;
         //public UnityEvent<int> OnClickedOnCard;
         private CardDeck cardDeck;
-
-        public void Initialize(Card parentCard, List<Card> player1Hand, List<Card> player2Hand, CardDeck cardDeck)
+        public CardSound cardSound;
+      
+        public void Initialize(Card parentCard, List<Card> player1Hand, List<Card> player2Hand, CardDeck cardDeck , CardSound cardSound)
         {
             this.parentCard = parentCard;
             this.player1Hand = player1Hand;
             this.player2Hand = player2Hand;
             this.cardDeck = cardDeck;
+            
         }
+
 
         public void OnMouseDown()
         {
             if (parentCard != null)
             {
-                //OnClickedOnCard.Invoke((int)parentCard.value);
+                //this.cardSound = gameObject.GetComponent<CardSound>();
+
                 cardDeck.PlayerMove(player1Hand, player2Hand, (int)parentCard.value);
-               // Debug.Log("Нажата карта: " + parentCard.value + " " + parentCard.suit);
+                Debug.Log("Нажатая карта" + parentCard.value);
             }
             else
             {
                 Debug.LogError("parentCard is null in OnMouseDown");
             }
         }
+
     }
+
+
 
     private List<CardClickHandler> cardObjs = new List<CardClickHandler>();
     public List<Card> cards; // Список карт в колоде
@@ -105,7 +112,7 @@ public class CardDeck : MonoBehaviour
     [SerializeField] private List<Sprite> cardsSprites;
     [SerializeField] private Sprite cardsSpriteBack;
     [SerializeField] private Animator _DogAnimator;
-
+    [SerializeField] private  CardSound cardSound;
     // [SerializeField] private List<Transform> cardPositions;
 
     [SerializeField] private List<Transform> player1CardPositions;
@@ -117,7 +124,8 @@ public class CardDeck : MonoBehaviour
         GenerateDeck();
         ShuffleDeck();
         DealCards();
-        // Начало игры, где игроки спрашивают друг у друга карты и проверяют на биту
+
+        
     }
 
     void GenerateDeck()
@@ -153,6 +161,7 @@ public class CardDeck : MonoBehaviour
             cards[randomIndex] = temp;
         }
     }
+
 
     public class PulseEffect : MonoBehaviour
     {
@@ -235,7 +244,7 @@ public class CardDeck : MonoBehaviour
         {
             clickHandler = player1Card.AddComponent<CardClickHandler>();
         }
-        clickHandler.Initialize(player1Hand[i], player1Hand, player2Hand, this);
+        clickHandler.Initialize(player1Hand[i], player1Hand, player2Hand, this , cardSound);
 
         cardObjs.Add(clickHandler);
     }
@@ -275,7 +284,8 @@ public class CardDeck : MonoBehaviour
     }
 
     int generatedPointIndex = 0;
-
+   
+    
 
     private Vector3 GiveCardPosition(CardsNumber number, List<Card> playerCards, int j)
     {
@@ -341,6 +351,8 @@ public class CardDeck : MonoBehaviour
 
     public void PlayerMove(List<Card> currentPlayerHand, List<Card> otherPlayerHand, int requestedValue)
     {
+        cardSound.PlayCardSound(requestedValue);
+
         bool foundRequestedCard = false;
 
         for (int i = 0; i < 4; i++)
