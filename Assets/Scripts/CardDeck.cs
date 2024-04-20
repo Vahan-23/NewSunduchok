@@ -351,16 +351,18 @@ public class CardDeck : MonoBehaviour
 
     public void PlayerMove(List<Card> currentPlayerHand, List<Card> otherPlayerHand, int requestedValue)
     {
-        cardSound.PlayCardSound(requestedValue);
-
+        //cardSound.PlayCardSound(requestedValue);
         bool foundRequestedCard = false;
-
+         AudioClip playedClip = cardSound.GiveCardSound(requestedValue);
+        float soundDuration = GetSoundDuration(playedClip);
+        List<Card> cardsToGive = new List<Card>();
         for (int i = 0; i < 4; i++)
         {
             Card requestedCard = otherPlayerHand.Find(card => card.value == (CardsNumber)requestedValue);
 
             if (requestedCard != null)
             {
+                //float soundDuration = GetSoundDuration(playedClip);
 
                 Debug.Log("Игрок: найдена запрошенная карта: " + requestedCard.value);
 
@@ -368,9 +370,7 @@ public class CardDeck : MonoBehaviour
                 otherPlayerHand.Remove(requestedCard);
 
                 foundRequestedCard = true;
-
-                _DogAnimator.SetBool("GiveCard", true);
-
+             
                 CheckForBittenSets(currentPlayerHand, (CardsNumber)requestedValue, bittenCards1, suteCounts);
 
             }
@@ -400,19 +400,46 @@ public class CardDeck : MonoBehaviour
                 Debug.Log("Игрок: Верхний индекс карты достиг конца колоды.");
             }
 
+            StartCoroutine(StartTimer(0, soundDuration, foundRequestedCard));
             //PlayerMove(otherPlayerHand, currentPlayerHand, (int)otherPlayerHand[Random.Range(0, otherPlayerHand.Count)].value);
-            CreateCards(currentPlayerHand.Count);
-
-            OpponentMove(otherPlayerHand, currentPlayerHand);
+            //CreateCards(currentPlayerHand.Count);
+            // OpponentMove(otherPlayerHand, currentPlayerHand);
         }
-        else StartCoroutine(StartTimer(2.0f));
 
+        else {
+            //AudioClip playedClip = cardSound.GiveCardSound(requestedValue);
+            
 
-        IEnumerator StartTimer(float duration)
+            StartCoroutine(StartTimer(2.0f , soundDuration , foundRequestedCard));
+        }
+       
+
+        IEnumerator StartTimer(float AnimDuration , float soundDuration , bool foundCard)
         {
-            yield return new WaitForSeconds(duration);
+            cardSound.PlaySound(playedClip);
+            // Ждем указанное количество времени
+            yield return new WaitForSeconds(soundDuration);
+            if (foundCard)
+            {
+                // Здесь начинаем анимацию
+                _DogAnimator.SetBool("GiveCard", true);
 
-            CreateCards(currentPlayerHand.Count);
+                // Ждем окончания анимации
+                yield return new WaitForSeconds(AnimDuration);
+
+                // Создаем карты после окончания анимации
+                CreateCards(player1Hand.Count);
+            }
+            else
+            {
+                cardSound.PlayFalseSound();
+                yield return new WaitForSeconds(soundDuration);
+                CreateCards(currentPlayerHand.Count);
+                
+                OpponentMove(otherPlayerHand, currentPlayerHand);
+                
+            }
+            
         }
 
         //CreateCards(currentPlayerHand.Count);
@@ -425,11 +452,12 @@ public class CardDeck : MonoBehaviour
     public void OpponentMove(List<Card> opponentHand, List<Card> playerHand)
     {
         bool foundRequestedOpCard = false;
-
+        int randomIndex = Random.Range(0, opponentHand.Count);
+        AudioClip playedClip = cardSound.GiveCardSound((int)opponentHand[randomIndex].value);
+        float soundDuration = GetSoundDuration(playedClip);
         if (opponentHand.Count > 0)
         {
             int cardCou = 0;
-            int randomIndex = Random.Range(0, opponentHand.Count);
             Card selectedCard = opponentHand[randomIndex]; // Запоминаем выбранную карту противника
 
             for (int j = 0; j < 4; j++)
@@ -445,7 +473,7 @@ public class CardDeck : MonoBehaviour
                     opponentHand.Add(requestedCard);
                     playerHand.Remove(requestedCard);
 
-                    _DogAnimator.SetBool("GetCard", true);
+
 
                     Debug.Log("Противник получил карту " + requestedCard.value + " от игрока. Попытка номер " + cardCou);
 
@@ -477,15 +505,16 @@ public class CardDeck : MonoBehaviour
                 {
                     Debug.Log("Противник запросил карту " + selectedCard.value + ", но не получил её от игрока. Колода пуста, противник не может взять карту.");
                 }
-
+                
                 //CreateCards(playerHand.Count);
             }
             else
             {
                 suteCounts--;
                 //OpponentMove(opponentHand, playerHand);
-                StartCoroutine(StartTimer(2.2f, true));
+               
             }
+            StartCoroutine(StartTimer(2.2f, soundDuration, foundRequestedOpCard));
         }
         else
         {
@@ -494,16 +523,25 @@ public class CardDeck : MonoBehaviour
             //CreateCards(playerHand.Count);
         }
 
-        IEnumerator StartTimer(float duration, bool move = false)
+        IEnumerator StartTimer(float duration, float soundDuration, bool move = false )
         {
-            yield return new WaitForSeconds(duration);
-
-            CreateCards(playerHand.Count);
+            cardSound.PlaySound(playedClip);
+            yield return new WaitForSeconds(soundDuration);
+            
 
             if (move)
             {
+                _DogAnimator.SetBool("GetCard", true);
+                yield return new WaitForSeconds(duration);
+                CreateCards(playerHand.Count);
                 yield return new WaitForSeconds(2);
                 OpponentMove(opponentHand, playerHand);
+            }
+            else
+            {
+                cardSound.PlayFalseSound();
+                yield return new WaitForSeconds(soundDuration);
+                CreateCards(playerHand.Count);
             }
         }
 
@@ -584,4 +622,14 @@ public class CardDeck : MonoBehaviour
         }
     }
 
+    public float GetSoundDuration(AudioClip audioClip)
+    {
+        if (audioClip == null)
+        {
+            Debug.LogWarning("AudioClip is null.");
+            return 0f;
+        }
+
+        return audioClip.length;
+    }
 }

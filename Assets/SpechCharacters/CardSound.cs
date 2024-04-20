@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 public class CardSound : MonoBehaviour
 {
-    public AudioClip aceSound;
-    public AudioClip kingSound;
+    public AudioClip YourAudioClip { get; set; }
     private AudioSource audioSource;
-
-
+    private int lastRandomIndex = -1;
+    [SerializeField] private AudioClip FalseSound;
     [SerializeField] private List<CardSoundVariants> sounds = new List<CardSoundVariants>();
 
     private void Awake()
@@ -22,43 +22,41 @@ public class CardSound : MonoBehaviour
 
     }
 
-
+    public void PlaySound(AudioClip clip)
+    {
+        audioSource.PlayOneShot(clip);
+    }
+    
+    public void PlayFalseSound()
+    {
+        audioSource.PlayOneShot(FalseSound);
+    }
 
     // Метод для воспроизведения звука карты
-    public void PlayCardSound(int cardValue)
+    public AudioClip GiveCardSound(int cardValue)
     {
-        if (sounds.Count > cardValue)
-            audioSource.PlayOneShot(sounds[cardValue].audioVariants[UnityEngine.Random.Range(0, sounds[cardValue].audioVariants.Count)]);
+        AudioClip selectedClip = null;
 
-    
-        // Используем switch для воспроизведения соответствующего звука в зависимости от значения карты
-        //switch (cardValue)
-        //{
-        //    case CardDeck.CardsNumber.Ace:
-        //        if (aceSound != null)
-        //        {
-        //            audioSource.PlayOneShot(aceSound);
-        //        }
-        //        else
-        //        {
-        //            Debug.LogWarning("No audio clip assigned for Ace sound.");
-        //        }
-        //        break;
-        //    case CardDeck.CardsNumber.King:
-        //        if (kingSound != null)
-        //        {
-        //            audioSource.PlayOneShot(kingSound);
-        //        }
-        //        else
-        //        {
-        //            Debug.LogWarning("No audio clip assigned for King sound.");
-        //        }
-        //        break;
-        //    default:
-        //        // Если для карты не найден звуковой файл, не воспроизводим ничего
-        //        break;
-        //}
+        if (sounds.Count > cardValue && sounds[cardValue].audioVariants.Count > 0)
+        {
+            int randomIndex;
+
+            // Генерируем случайный индекс, исключая последний использованный индекс
+            do
+            {
+                randomIndex = UnityEngine.Random.Range(0, sounds[cardValue].audioVariants.Count);
+            } while (randomIndex == lastRandomIndex);
+
+            selectedClip = sounds[cardValue].audioVariants[randomIndex];
+            // audioSource.PlayOneShot(selectedClip);
+
+            // Сохраняем последний использованный индекс
+            lastRandomIndex = randomIndex;
+        }
+
+        return selectedClip;
     }
+
 }
 
 [Serializable]
