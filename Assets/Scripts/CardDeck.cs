@@ -433,7 +433,10 @@ public class CardDeck : MonoBehaviour
             else
             {
                 cardSound.PlayFalseSound();
-                yield return new WaitForSeconds(soundDuration);
+                _DogAnimator.SetBool("NoCard", true);
+                yield return new WaitForSeconds(2.2f);
+                _DogAnimator.SetBool("NoCard", false);
+
                 CreateCards(currentPlayerHand.Count);
                 
                 OpponentMove(otherPlayerHand, currentPlayerHand);
@@ -525,9 +528,12 @@ public class CardDeck : MonoBehaviour
 
         IEnumerator StartTimer(float duration, float soundDuration, bool move = false )
         {
+            yield return new WaitForSeconds(0.5f);
             cardSound.PlaySound(playedClip);
-            yield return new WaitForSeconds(soundDuration);
-            
+            _DogAnimator.SetBool("Speak", true);
+            yield return new WaitForSeconds(soundDuration - 0.3f);
+            _DogAnimator.SetBool("Speak", false);
+            yield return new WaitForSeconds(0.31f);
 
             if (move)
             {
