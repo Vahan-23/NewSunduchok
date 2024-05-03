@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine.Rendering;
 using System.Linq;
 using UnityEngine.Events;
+using DG.Tweening;
 
 public class CardDeck : MonoBehaviour
 {
@@ -71,30 +72,37 @@ public class CardDeck : MonoBehaviour
         //public UnityEvent<int> OnClickedOnCard;
         private CardDeck cardDeck;
         public CardSound cardSound;
-      
-        public void Initialize(Card parentCard, List<Card> player1Hand, List<Card> player2Hand, CardDeck cardDeck , CardSound cardSound)
+     
+        public void Initialize(Card parentCard, List<Card> player1Hand, List<Card> player2Hand, CardDeck cardDeck , CardSound cardSound )
         {
             this.parentCard = parentCard;
             this.player1Hand = player1Hand;
             this.player2Hand = player2Hand;
             this.cardDeck = cardDeck;
+         
             
         }
-
+        
 
         public void OnMouseDown()
         {
             if (parentCard != null)
             {
                 //this.cardSound = gameObject.GetComponent<CardSound>();
-
+                
                 cardDeck.PlayerMove(player1Hand, player2Hand, (int)parentCard.value);
+                cardDeck.changeColor((int)parentCard.posPointIndex , Color.gray);
                 Debug.Log("Нажатая карта" + parentCard.value);
             }
             else
             {
                 Debug.LogError("parentCard is null in OnMouseDown");
             }
+        }
+
+        public void OnMouseUp()
+        {
+            cardDeck.changeColor((int)parentCard.posPointIndex, Color.white);
         }
 
     }
@@ -117,7 +125,7 @@ public class CardDeck : MonoBehaviour
 
     [SerializeField] private List<Transform> player1CardPositions;
     [SerializeField] private List<Transform> player2CardPositions;
-
+    [SerializeField] private Transform camTransform;
 
     void Start()
     {
@@ -162,23 +170,35 @@ public class CardDeck : MonoBehaviour
         }
     }
 
+    public void changeColor(int value , Color color)
+    {
+        cardObjs[value].GetComponent<SpriteRenderer>().DOColor(color , 0.5f);
+    }
+
+    private void camAnim(float moveDuration = 0.7f)
+    {
+
+        camTransform.DORotate(new Vector3(0, -2.7f, -0.7f), moveDuration).OnComplete(() =>
+        {
+            camTransform.DORotate(new Vector3(0, 2.7f, 0.7f), moveDuration).OnComplete(() =>
+            {
+                camTransform.DORotate(new Vector3(0, -2.7f, -0.7f), moveDuration).OnComplete(() =>
+                {
+                    camTransform.DORotate(Vector3.zero, moveDuration);
+                });
+            });
+        });
+
+    }
+
+
 
     public class PulseEffect : MonoBehaviour
     {
-        public float pulseSpeed = 0.4f;  // Скорость пульсации
-        public float pulseScale = 0.4f;  // Максимальный масштаб во время пульсации
-
-        private Vector3 initialScale;
-
         void Start()
         {
-            initialScale = transform.localScale;
-        }
+            transform.DOScale(transform.localScale * 1.1f, 0.65f).SetLoops(-1, LoopType.Yoyo);
 
-        void Update()
-        {
-            float scale = 1.0f - Mathf.PingPong(Time.time * pulseSpeed, pulseScale);
-            transform.localScale = initialScale * scale;
         }
     }
 
@@ -228,9 +248,7 @@ public class CardDeck : MonoBehaviour
         PulseEffect pulseEffect = player1Card.AddComponent<PulseEffect>();
 
         // Настройка параметров пульсации, если необходимо
-        pulseEffect.pulseSpeed = 0.105f;
-        pulseEffect.pulseScale = 0.04f;
-
+ 
 
         collider.size = new Vector2(12, 19);
         collider.enabled = true;
@@ -352,6 +370,7 @@ public class CardDeck : MonoBehaviour
     public void PlayerMove(List<Card> currentPlayerHand, List<Card> otherPlayerHand, int requestedValue)
     {
         //cardSound.PlayCardSound(requestedValue);
+       
         bool foundRequestedCard = false;
          AudioClip playedClip = cardSound.GiveCardSound(requestedValue);
         float soundDuration = GetSoundDuration(playedClip);
@@ -416,9 +435,9 @@ public class CardDeck : MonoBehaviour
 
         IEnumerator StartTimer(float AnimDuration , float soundDuration , bool foundCard)
         {
-            cardSound.PlaySound(playedClip);
+            //cardSound.PlaySound(playedClip);
             // Ждем указанное количество времени
-            yield return new WaitForSeconds(soundDuration);
+            //yield return new WaitForSeconds(soundDuration);
             if (foundCard)
             {
                 // Здесь начинаем анимацию
@@ -545,8 +564,11 @@ public class CardDeck : MonoBehaviour
             }
             else
             {
-                cardSound.PlayFalseSound();
-                yield return new WaitForSeconds(soundDuration);
+                float duration1 = 0.4f;
+                camAnim(duration1);
+                yield return new WaitForSeconds(duration1 * 3 + 0.05f);
+                //cardSound.PlayFalseSound();
+                // yield return new WaitForSeconds(soundDuration);
                 CreateCards(playerHand.Count);
             }
         }
