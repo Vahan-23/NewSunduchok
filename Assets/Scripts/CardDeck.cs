@@ -7,36 +7,64 @@ using System.Linq;
 using UnityEngine.Events;
 using DG.Tweening;
 
+
+[System.Serializable]
+public class Card
+{
+    public CardsNumber value; // Значение карты (2-10, валет - 11, дама - 12, король - 13, туз - 14)
+    public Suit suit; // Масть карты
+    public Sprite face; // Изображение карты лицом вверх
+    public Sprite back; // Задняя сторона карты
+    public int posPointIndex;
+    // public GameObject gameObject; // Ссылка на игровой объект
+}
+public enum Suit { Hearts, Diamonds, Clubs, Spades };
+public enum CardsNumber
+{
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+    Ten,
+    Jack,
+    Queen,
+    King,
+    Ace
+};
 public class CardDeck : MonoBehaviour
 {
-    public enum Suit { Hearts, Diamonds, Clubs, Spades };
-    public enum CardsNumber
-    {
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven,
-        Eight,
-        Nine,
-        Ten,
-        Jack,
-        Queen,
-        King,
-        Ace
-    };
+    //public enum Suit { Hearts, Diamonds, Clubs, Spades };
+    //public enum CardsNumber
+    //{
+    //    Two,
+    //    Three,
+    //    Four,
+    //    Five,
+    //    Six,
+    //    Seven,
+    //    Eight,
+    //    Nine,
+    //    Ten,
+    //    Jack,
+    //    Queen,
+    //    King,
+    //    Ace
+    //};
 
-    [System.Serializable]
-    public class Card
-    {
-        public CardsNumber value; // Значение карты (2-10, валет - 11, дама - 12, король - 13, туз - 14)
-        public Suit suit; // Масть карты
-        public Sprite face; // Изображение карты лицом вверх
-        public Sprite back; // Задняя сторона карты
-        public int posPointIndex;
-        // public GameObject gameObject; // Ссылка на игровой объект
-    }
+    //[System.Serializable]
+    //public class Card
+    //{
+    //    public CardsNumber value; // Значение карты (2-10, валет - 11, дама - 12, король - 13, туз - 14)
+    //    public Suit suit; // Масть карты
+    //    public Sprite face; // Изображение карты лицом вверх
+    //    public Sprite back; // Задняя сторона карты
+    //    public int posPointIndex;
+    //    // public GameObject gameObject; // Ссылка на игровой объект
+    //}
 
     List<Vector3> generatedPoints = new List<Vector3>();
 
@@ -64,7 +92,7 @@ public class CardDeck : MonoBehaviour
         return points;
     }
    
-    public class CardClickHandler : MonoBehaviour
+   /* public class CardClickHandler : MonoBehaviour
     {
         private Card parentCard;
         private List<Card> player1Hand;
@@ -105,7 +133,7 @@ public class CardDeck : MonoBehaviour
             cardDeck.changeColor((int)parentCard.posPointIndex, Color.white);
         }
 
-    }
+    }*/
 
 
 
@@ -123,8 +151,8 @@ public class CardDeck : MonoBehaviour
     [SerializeField] private  CardSound cardSound;
     // [SerializeField] private List<Transform> cardPositions;
 
-    [SerializeField] private List<Transform> player1CardPositions;
-    [SerializeField] private List<Transform> player2CardPositions;
+    //[SerializeField] private List<Transform> player1CardPositions;
+    //[SerializeField] private List<Transform> player2CardPositions;
     [SerializeField] private Transform camTransform;
 
     void Start()
@@ -170,10 +198,10 @@ public class CardDeck : MonoBehaviour
         }
     }
 
-    public void changeColor(int value , Color color)
-    {
-        cardObjs[value].GetComponent<SpriteRenderer>().DOColor(color , 0.5f);
-    }
+    //public void changeColor(int value , Color color)
+    //{
+    //    cardObjs[value].GetComponent<SpriteRenderer>().DOColor(color , 0.5f);
+    //}
 
     private void camAnim(float moveDuration = 0.7f)
     {
@@ -233,7 +261,8 @@ public class CardDeck : MonoBehaviour
     }
     void CreateCard(int i)
     {
-        GameObject player1Card = new GameObject();
+        GameObject player1Card = new GameObject($"{player1Hand[i].suit}  {player1Hand[i].value}");
+        player1Card.transform.parent = transform;
         player1Card.transform.position = GiveCardPosition(player1Hand[i].value, player1Hand, i);
         SpriteRenderer renderer1 = player1Card.AddComponent<SpriteRenderer>();
         renderer1.sprite = player1Hand[i].face;
