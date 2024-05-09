@@ -68,6 +68,8 @@ public class CardDeck : MonoBehaviour
 
     List<Vector3> generatedPoints = new List<Vector3>();
 
+    private bool _playerTurn = true;
+
     private int deckUpperCardIndex = 0;
     [SerializeField] private Transform lineCenterFirst; // Координаты центра линии
 
@@ -398,6 +400,10 @@ public class CardDeck : MonoBehaviour
 
     public void PlayerMove(List<Card> currentPlayerHand, List<Card> otherPlayerHand, int requestedValue)
     {
+        if (!_playerTurn)
+            return;
+
+        _playerTurn = false;
         //cardSound.PlayCardSound(requestedValue);
        
         bool foundRequestedCard = false;
@@ -477,6 +483,7 @@ public class CardDeck : MonoBehaviour
 
                 // Создаем карты после окончания анимации
                 CreateCards(player1Hand.Count);
+                _playerTurn = true;
             }
             else
             {
@@ -502,6 +509,7 @@ public class CardDeck : MonoBehaviour
 
     public void OpponentMove(List<Card> opponentHand, List<Card> playerHand)
     {
+        _playerTurn = false;
         bool foundRequestedOpCard = false;
         int randomIndex = Random.Range(0, opponentHand.Count);
         AudioClip playedClip = cardSound.GiveCardSound((int)opponentHand[randomIndex].value);
@@ -599,6 +607,7 @@ public class CardDeck : MonoBehaviour
                 //cardSound.PlayFalseSound();
                 // yield return new WaitForSeconds(soundDuration);
                 CreateCards(playerHand.Count);
+                _playerTurn = true;
             }
         }
 
