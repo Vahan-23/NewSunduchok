@@ -151,6 +151,8 @@ public class CardDeck : MonoBehaviour
     [SerializeField] private Sprite cardsSpriteBack;
     [SerializeField] private Animator _DogAnimator;
     [SerializeField] private  CardSound cardSound;
+    [SerializeField] private TextCloud textCloud;
+
     // [SerializeField] private List<Transform> cardPositions;
 
     //[SerializeField] private List<Transform> player1CardPositions;
@@ -587,8 +589,12 @@ public class CardDeck : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
             cardSound.PlaySound(playedClip);
             _DogAnimator.SetBool("Speak", true);
+           // textCloud.anim1(0, new Color(1, 1, 1, 1));
+            textCloud.anim2(0, true);
             yield return new WaitForSeconds(soundDuration - 0.3f);
             _DogAnimator.SetBool("Speak", false);
+            // textCloud.anim1(0, new Color(1, 1, 1, 0));
+            textCloud.anim2(0, false);
             yield return new WaitForSeconds(0.31f);
 
             if (move)
