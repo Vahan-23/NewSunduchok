@@ -516,10 +516,13 @@ public class CardDeck : MonoBehaviour
         int randomIndex = Random.Range(0, opponentHand.Count);
         AudioClip playedClip = cardSound.GiveCardSound((int)opponentHand[randomIndex].value);
         float soundDuration = GetSoundDuration(playedClip);
+
+        Card selectedCard = opponentHand[randomIndex];// esi karoxa 0 ylni petqa dzel, nerqevy ogtagorcel em sran
+
         if (opponentHand.Count > 0)
         {
             int cardCou = 0;
-            Card selectedCard = opponentHand[randomIndex]; // Запоминаем выбранную карту противника
+            //Card selectedCard = opponentHand[randomIndex]; // Запоминаем выбранную карту противника
 
             for (int j = 0; j < 4; j++)
             {
@@ -590,11 +593,11 @@ public class CardDeck : MonoBehaviour
             cardSound.PlaySound(playedClip);
             _DogAnimator.SetBool("Speak", true);
            // textCloud.anim1(0, new Color(1, 1, 1, 1));
-            textCloud.anim2(0, true);
+            textCloud.anim2(selectedCard.value, true);
             yield return new WaitForSeconds(soundDuration - 0.3f);
             _DogAnimator.SetBool("Speak", false);
             // textCloud.anim1(0, new Color(1, 1, 1, 0));
-            textCloud.anim2(0, false);
+            textCloud.anim2(selectedCard.value, false);
             yield return new WaitForSeconds(0.31f);
 
             if (move)
