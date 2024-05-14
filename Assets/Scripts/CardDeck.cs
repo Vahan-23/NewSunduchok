@@ -466,7 +466,7 @@ public class CardDeck : MonoBehaviour
             //AudioClip playedClip = cardSound.GiveCardSound(requestedValue);
             
 
-            StartCoroutine(StartTimer(2.0f , soundDuration , foundRequestedCard));
+            StartCoroutine(StartTimer(3.8f , soundDuration , foundRequestedCard));
         }
        
 
@@ -517,6 +517,8 @@ public class CardDeck : MonoBehaviour
         AudioClip playedClip = cardSound.GiveCardSound((int)opponentHand[randomIndex].value);
         float soundDuration = GetSoundDuration(playedClip);
 
+        bool bitSets = false;
+
         Card selectedCard = opponentHand[randomIndex];// esi karoxa 0 ylni petqa dzel, nerqevy ogtagorcel em sran
 
         if (opponentHand.Count > 0)
@@ -548,7 +550,7 @@ public class CardDeck : MonoBehaviour
 
                     // Проверяем наличие биты после хода противника
                     foundRequestedOpCard = true;
-                    CheckForBittenOpponentSets(opponentHand, requestedCard.value);
+                    bitSets = CheckForBittenOpponentSets(opponentHand, requestedCard.value);
 
                 }
 
@@ -563,7 +565,7 @@ public class CardDeck : MonoBehaviour
                     Debug.Log("Противник запросил карту " + selectedCard.value + ", но не получил её от игрока. Противник взял карту из колоды.");
 
                     // Проверяем наличие биты после хода противника
-                    CheckForBittenOpponentSets(opponentHand, cards[deckUpperCardIndex - 1].value);
+                    bitSets = CheckForBittenOpponentSets(opponentHand, cards[deckUpperCardIndex - 1].value);
                 }
                 else
                 {
@@ -578,7 +580,7 @@ public class CardDeck : MonoBehaviour
                 //OpponentMove(opponentHand, playerHand);
                
             }
-            StartCoroutine(StartTimer(2.2f, soundDuration, foundRequestedOpCard));
+            StartCoroutine(StartTimer(3.6f, soundDuration, foundRequestedOpCard));
         }
         else
         {
@@ -606,6 +608,13 @@ public class CardDeck : MonoBehaviour
                 yield return new WaitForSeconds(duration);
                 CreateCards(playerHand.Count);
                 yield return new WaitForSeconds(2);
+
+                if (bitSets)
+                {
+                    _DogAnimator.SetTrigger("BitSets");
+                    yield return new WaitForSeconds(2);
+                    //_DogAnimator.SetBool("BitSets", false);
+                }
                 OpponentMove(opponentHand, playerHand);
             }
             else
@@ -615,6 +624,14 @@ public class CardDeck : MonoBehaviour
                 yield return new WaitForSeconds(duration1 * 3 + 0.05f);
                 //cardSound.PlayFalseSound();
                 // yield return new WaitForSeconds(soundDuration);
+
+                //shan qart qashelna ste kalodic
+                if (bitSets)
+                {
+                    _DogAnimator.SetTrigger("BitSets");
+                    yield return new WaitForSeconds(2);
+                    //_DogAnimator.SetBool("BitSets", false);
+                }
                 CreateCards(playerHand.Count);
                 _playerTurn = true;
             }
@@ -664,7 +681,7 @@ public class CardDeck : MonoBehaviour
     }
 
 
-    void CheckForBittenOpponentSets(List<Card> opponentHand, CardsNumber number)
+    bool CheckForBittenOpponentSets(List<Card> opponentHand, CardsNumber number)
     {
         List<Card> cardsToRemove = new List<Card>();
 
@@ -694,7 +711,10 @@ public class CardDeck : MonoBehaviour
             {
                 opponentHand[i].posPointIndex = i;
             }
+
+            return true;
         }
+        return false;
     }
 
     public float GetSoundDuration(AudioClip audioClip)
