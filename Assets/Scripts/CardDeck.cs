@@ -166,6 +166,7 @@ public class CardDeck : MonoBehaviour
         ShuffleDeck();
         DealCards();
 
+        cardSound.StartGame();
     }
 
     void GenerateDeck()
@@ -193,7 +194,6 @@ public class CardDeck : MonoBehaviour
 
     void ShuffleDeck()
     {
-        cardSound.StartGame();
         for (int i = 0; i < cards.Count; i++)
         {
             Card temp = cards[i];
@@ -449,6 +449,7 @@ public class CardDeck : MonoBehaviour
                 CheckForBittenSets(currentPlayerHand, cards[deckUpperCardIndex].value, bittenCards1, suteCounts);
 
                 deckUpperCardIndex++;
+
                 Debug.Log("Игрок взял верхнюю карту из колоды: " + cards[deckUpperCardIndex - 1].value);
             }
             else
@@ -480,13 +481,16 @@ public class CardDeck : MonoBehaviour
             {
                 // Здесь начинаем анимацию
                 _DogAnimator.SetBool("GiveCard", true);
-                cardSound.TableKICK();
+                yield return new WaitForSeconds(1.0f);
+                cardSound.TablePunch();
+                yield return new WaitForSeconds(1.0f);
                 cardSound.GiveCardSound();
+                yield return new WaitForSeconds(0.3f);
+                CreateCards(player1Hand.Count);
                 // Ждем окончания анимации
-                yield return new WaitForSeconds(AnimDuration);
+                yield return new WaitForSeconds(AnimDuration - 2);
 
                 // Создаем карты после окончания анимации
-                CreateCards(player1Hand.Count);
                 _playerTurn = true;
             }
             else
@@ -496,8 +500,8 @@ public class CardDeck : MonoBehaviour
                 yield return new WaitForSeconds(2.2f);
                 _DogAnimator.SetBool("NoCard", false);
 
+                cardSound.GiveKalodSound();
                 CreateCards(currentPlayerHand.Count);
-                
                 OpponentMove(otherPlayerHand, currentPlayerHand);
                 
             }
@@ -583,7 +587,7 @@ public class CardDeck : MonoBehaviour
                 //OpponentMove(opponentHand, playerHand);
                
             }
-            StartCoroutine(StartTimer(3.6f, soundDuration, foundRequestedOpCard));
+            StartCoroutine(StartTimer(3.0f, soundDuration, foundRequestedOpCard));
         }
         else
         {
@@ -637,6 +641,7 @@ public class CardDeck : MonoBehaviour
                     //_DogAnimator.SetBool("BitSets", false);
                 }
                 CreateCards(playerHand.Count);
+                cardSound.GiveKalodSound();
                 _playerTurn = true;
             }
         }
@@ -725,8 +730,8 @@ public class CardDeck : MonoBehaviour
     {
         if (audioClip == null)
         {
-            Debug.LogWarning("AudioClip is null.");
-            return 0f;
+            //Debug.LogWarning("AudioClip is null.");
+            return 1.5f;
         }
 
         return audioClip.length;

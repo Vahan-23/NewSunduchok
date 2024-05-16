@@ -13,6 +13,8 @@ public class TextCloud : MonoBehaviour
     
     [SerializeField] private TextMeshProUGUI _necesaryCardText;
 
+    [SerializeField] private string[] _cardNames = new string[13];
+
     private void Start()
     {
         for(int i = 0; i < _circles.Count; i++)
@@ -46,6 +48,6 @@ public class TextCloud : MonoBehaviour
             Vector3 targetScale = appearing ? _circlesScale[i] : Vector3.zero;
             sequence.Append(_circles[i].transform.DOScale(targetScale, 0.2f));
         }
-        _necesaryCardText.text = cardsNumber.ToString();
+        _necesaryCardText.text = _cardNames[(int)cardsNumber];
     }
 }

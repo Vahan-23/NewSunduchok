@@ -14,7 +14,7 @@ public class CardSound : MonoBehaviour
     [SerializeField] private AudioClip bittenSound;
     [SerializeField] private AudioClip giveKalodSound;
     [SerializeField] private AudioClip startGame;
-    [SerializeField] private AudioClip tableKICK;
+    [SerializeField] private AudioClip tablePunch;
     [SerializeField] private List<CardSoundVariants> sounds = new List<CardSoundVariants>();
 
     private void Awake()
@@ -43,15 +43,16 @@ public class CardSound : MonoBehaviour
     }
     public void GiveKalodSound()
     {
+        audioSource.volume = 1;
         audioSource.PlayOneShot(giveKalodSound);
     }
     public void StartGame()
     {
         audioSource.PlayOneShot(startGame);
     }
-    public void TableKICK()
+    public void TablePunch()
     {
-        audioSource.PlayOneShot(tableKICK);
+        audioSource.PlayOneShot(tablePunch);
     }
 
 
