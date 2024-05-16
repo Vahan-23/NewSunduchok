@@ -161,11 +161,11 @@ public class CardDeck : MonoBehaviour
 
     void Start()
     {
+       
         GenerateDeck();
         ShuffleDeck();
         DealCards();
 
-        
     }
 
     void GenerateDeck()
@@ -189,10 +189,11 @@ public class CardDeck : MonoBehaviour
             }
         }
     }
+  
 
     void ShuffleDeck()
     {
-
+        cardSound.StartGame();
         for (int i = 0; i < cards.Count; i++)
         {
             Card temp = cards[i];
@@ -479,7 +480,8 @@ public class CardDeck : MonoBehaviour
             {
                 // Здесь начинаем анимацию
                 _DogAnimator.SetBool("GiveCard", true);
-
+                cardSound.TableKICK();
+                cardSound.GiveCardSound();
                 // Ждем окончания анимации
                 yield return new WaitForSeconds(AnimDuration);
 
@@ -515,6 +517,7 @@ public class CardDeck : MonoBehaviour
         bool foundRequestedOpCard = false;
         int randomIndex = Random.Range(0, opponentHand.Count);
         AudioClip playedClip = cardSound.GiveCardSound((int)opponentHand[randomIndex].value);
+        
         float soundDuration = GetSoundDuration(playedClip);
 
         bool bitSets = false;
@@ -605,6 +608,7 @@ public class CardDeck : MonoBehaviour
             if (move)
             {
                 _DogAnimator.SetBool("GetCard", true);
+                
                 yield return new WaitForSeconds(duration);
                 CreateCards(playerHand.Count);
                 yield return new WaitForSeconds(2);

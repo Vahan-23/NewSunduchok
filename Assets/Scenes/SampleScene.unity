@@ -370,7 +370,7 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!43 &114563499
+--- !u!43 &189701443
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2273,6 +2273,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FalseSound: {fileID: 8300000, guid: c7e9dca00d1fee84b90aa96d18c64aef, type: 3}
+  giveCardSound: {fileID: 8300000, guid: aa392a04282b2014492b8adea502e1aa, type: 3}
+  bittenSound: {fileID: 8300000, guid: e2a3429c619a60c4e929ed3888fad2f1, type: 3}
+  giveKalodSound: {fileID: 8300000, guid: dadfe4478060bb9449a21677a988d14b, type: 3}
+  startGame: {fileID: 8300000, guid: 6bc42d4ce832b284aa61ace86f32fc4d, type: 3}
+  tableKICK: {fileID: 8300000, guid: 870a6da56d1262d47b9e024051750b89, type: 3}
   sounds:
   - audioVariants:
     - {fileID: 8300000, guid: b4098ac44f1893b43ad8364e0dba0b75, type: 3}
@@ -2560,8 +2565,8 @@ MonoBehaviour:
   - {x: 4.35176, y: 2.1158962, z: -1.43494105e-11}
   - {x: 4.382351, y: -1.4544623, z: -1.43494105e-11}
   m_ShapePathHash: -1557350817
-  m_Mesh: {fileID: 114563499}
-  m_InstanceId: -143178
+  m_Mesh: {fileID: 189701443}
+  m_InstanceId: 32394
   m_LocalBounds:
     m_Center: {x: 1.9511875, y: 0.28406036, z: 0}
     m_Extent: {x: 2.4311633, y: 1.8318357, z: 0}

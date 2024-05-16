@@ -6,9 +6,15 @@ using UnityEngine;
 public class CardSound : MonoBehaviour
 {
     public AudioClip YourAudioClip { get; set; }
+
     private AudioSource audioSource;
     private int lastRandomIndex = -1;
     [SerializeField] private AudioClip FalseSound;
+    [SerializeField] private AudioClip giveCardSound;
+    [SerializeField] private AudioClip bittenSound;
+    [SerializeField] private AudioClip giveKalodSound;
+    [SerializeField] private AudioClip startGame;
+    [SerializeField] private AudioClip tableKICK;
     [SerializeField] private List<CardSoundVariants> sounds = new List<CardSoundVariants>();
 
     private void Awake()
@@ -31,6 +37,23 @@ public class CardSound : MonoBehaviour
     {
         audioSource.PlayOneShot(FalseSound);
     }
+    public void GiveCardSound()
+    {
+        audioSource.PlayOneShot(giveCardSound);
+    }
+    public void GiveKalodSound()
+    {
+        audioSource.PlayOneShot(giveKalodSound);
+    }
+    public void StartGame()
+    {
+        audioSource.PlayOneShot(startGame);
+    }
+    public void TableKICK()
+    {
+        audioSource.PlayOneShot(tableKICK);
+    }
+
 
     // Метод для воспроизведения звука карты
     public AudioClip GiveCardSound(int cardValue)
